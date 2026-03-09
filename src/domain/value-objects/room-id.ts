@@ -15,6 +15,11 @@ export class RoomId {
 
   /** Generate a new RoomId using nanoid */
   static generate(length = 12): RoomId {
+    if (!Number.isInteger(length) || length <= 0) {
+      throw new Error(
+        `Invalid RoomId length: ${length}. Length must be a positive integer.`,
+      )
+    }
     return new RoomId(nanoid(length))
   }
 
