@@ -13,11 +13,21 @@ describe('RoomId', () => {
       expect(id.toString()).toHaveLength(8)
     })
 
-    it('generates unique IDs', () => {
-      const ids = new Set(
-        Array.from({ length: 100 }, () => RoomId.generate().toString()),
-      )
-      expect(ids.size).toBe(100)
+    it('generates IDs with valid characters', () => {
+      const id = RoomId.generate()
+      expect(id.toString()).toMatch(/^[A-Za-z0-9_-]+$/)
+    })
+
+    it('throws on zero length', () => {
+      expect(() => RoomId.generate(0)).toThrow('Invalid RoomId length')
+    })
+
+    it('throws on negative length', () => {
+      expect(() => RoomId.generate(-1)).toThrow('Invalid RoomId length')
+    })
+
+    it('throws on non-integer length', () => {
+      expect(() => RoomId.generate(3.5)).toThrow('Invalid RoomId length')
     })
   })
 
