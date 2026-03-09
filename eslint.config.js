@@ -19,6 +19,7 @@ export default [
     rules: {
       ...tsPlugin.configs.recommended.rules,
       '@typescript-eslint/no-explicit-any': 'error',
+      'no-undef': 'off',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
