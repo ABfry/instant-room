@@ -1,2 +1,2 @@
 export { RoomId } from './room-id.js'
-export { parseTtl, TtlTimer } from './ttl.js'
+export { Ttl } from './ttl.js'
