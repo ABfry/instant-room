@@ -86,4 +86,20 @@ describe('TtlTimer', () => {
     timer.stop()
     expect(timer.isRunning).toBe(false)
   })
+
+  it('throws on NaN', () => {
+    expect(() => new TtlTimer(NaN, vi.fn())).toThrow(RangeError)
+  })
+
+  it('throws on Infinity', () => {
+    expect(() => new TtlTimer(Infinity, vi.fn())).toThrow(RangeError)
+  })
+
+  it('throws on negative number', () => {
+    expect(() => new TtlTimer(-1000, vi.fn())).toThrow(RangeError)
+  })
+
+  it('throws on zero', () => {
+    expect(() => new TtlTimer(0, vi.fn())).toThrow(RangeError)
+  })
 })

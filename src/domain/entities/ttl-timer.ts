@@ -8,7 +8,13 @@ export class TtlTimer {
   constructor(
     private readonly durationMs: number,
     private readonly onExpire: () => void,
-  ) {}
+  ) {
+    if (!Number.isFinite(durationMs) || durationMs <= 0) {
+      throw new RangeError(
+        'TtlTimer durationMs must be a finite number greater than 0',
+      )
+    }
+  }
 
   /** Whether the timer is currently running */
   get isRunning(): boolean {
