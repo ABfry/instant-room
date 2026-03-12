@@ -46,15 +46,19 @@ export class AwarenessWrapper {
         const isValid = hasState(state)
         const isKnown = this.knownClients.has(clientId)
 
+        // New participant: has valid state but not yet tracked → join
         if (isValid && !isKnown) {
           this.knownClients.add(clientId)
           this.emit(this.joinCallbacks, { clientId, data: state })
+        // Existing participant: state changed → update
         } else if (isValid && isKnown) {
           this.emit(this.updateCallbacks, { clientId, data: state })
+        // Departed participant: state cleared or emptied → leave
         } else if (!isValid && isKnown) {
           this.knownClients.delete(clientId)
           this.emit(this.leaveCallbacks, clientId)
         }
+        // (!isValid && !isKnown): unknown client with no state → ignore
       }
 
       for (const clientId of removed) {
