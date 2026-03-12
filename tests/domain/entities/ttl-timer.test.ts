@@ -102,4 +102,54 @@ describe('TtlTimer', () => {
   it('throws on zero', () => {
     expect(() => new TtlTimer(0, vi.fn())).toThrow(RangeError)
   })
+
+  describe('unexpected call sequences', () => {
+    it('reset() without start() starts the timer', () => {
+      const onExpire = vi.fn()
+      const timer = new TtlTimer(1000, onExpire)
+
+      timer.reset()
+      expect(timer.isRunning).toBe(true)
+
+      vi.advanceTimersByTime(1000)
+      expect(onExpire).toHaveBeenCalledOnce()
+    })
+
+    it('double start() fires onExpire only once', () => {
+      const onExpire = vi.fn()
+      const timer = new TtlTimer(1000, onExpire)
+
+      timer.start()
+      timer.start()
+
+      vi.advanceTimersByTime(1000)
+      expect(onExpire).toHaveBeenCalledOnce()
+    })
+
+    it('reset() after destroy() does nothing', () => {
+      const onExpire = vi.fn()
+      const timer = new TtlTimer(1000, onExpire)
+
+      timer.destroy()
+      timer.reset()
+      expect(timer.isRunning).toBe(false)
+
+      vi.advanceTimersByTime(1000)
+      expect(onExpire).not.toHaveBeenCalled()
+    })
+
+    it('stop() without start() does not throw', () => {
+      const timer = new TtlTimer(1000, vi.fn())
+      expect(() => timer.stop()).not.toThrow()
+    })
+
+    it('double destroy() does not throw', () => {
+      const timer = new TtlTimer(1000, vi.fn())
+      timer.start()
+      expect(() => {
+        timer.destroy()
+        timer.destroy()
+      }).not.toThrow()
+    })
+  })
 })
