@@ -11,5 +11,5 @@ export default defineConfig({
       js: format === 'esm' ? '.mjs' : '.cjs',
     }
   },
-  external: ['yjs', 'y-protocols', '@hocuspocus/server', 'y-websocket'],
+  external: ['yjs', 'y-protocols', '@hocuspocus/server', 'y-websocket', 'ws', 'lib0'],
 })
