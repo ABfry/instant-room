@@ -80,7 +80,7 @@ describe('RoomManager', () => {
       expect(adapter.getAwareness).toHaveBeenCalled()
     })
 
-    it('throws if getAwareness returns null', async () => {
+    it('throws and cleans up if getAwareness returns null', async () => {
       const adapter = createMockAdapter({
         getAwareness: vi.fn().mockReturnValue(null),
       })
@@ -89,6 +89,7 @@ describe('RoomManager', () => {
       await expect(manager.create()).rejects.toThrow(
         'Awareness not available after createRoom',
       )
+      expect(adapter.destroyRoom).toHaveBeenCalled()
     })
 
     it('makes room retrievable via get()', async () => {

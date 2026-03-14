@@ -40,6 +40,7 @@ export class RoomManager {
 
     const awareness = this.adapter.getAwareness(roomId)
     if (!awareness) {
+      await this.adapter.destroyRoom(roomId)
       throw new Error('Awareness not available after createRoom')
     }
 
