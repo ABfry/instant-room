@@ -80,7 +80,7 @@ describe('RoomManager', () => {
       expect(adapter.getAwareness).toHaveBeenCalled()
     })
 
-    it('throws and cleans up if getAwareness returns null', async () => {
+    it('throws if getAwareness returns null', async () => {
       const adapter = createMockAdapter({
         getAwareness: vi.fn().mockReturnValue(null),
       })
