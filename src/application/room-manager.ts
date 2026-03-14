@@ -52,7 +52,11 @@ export class RoomManager {
       room.destroy().catch((err: unknown) => {
         console.error(`Failed to destroy room ${roomId}:`, err)
       })
-      this.onExpireCallback?.(roomId.toString())
+      try {
+        this.onExpireCallback?.(roomId.toString())
+      } catch (err) {
+        console.error('Error in onExpire callback:', err)
+      }
     }
 
     const timer = new TtlTimer(ttl.toMs(), onExpire)
