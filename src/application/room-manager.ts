@@ -1,4 +1,4 @@
-import * as Y from 'yjs'
+import { Doc } from 'yjs'
 import type { ProviderAdapter } from '../domain/ports/adapter.js'
 import { Room } from '../domain/entities/room.js'
 import { AwarenessWrapper } from '../domain/entities/awareness.js'
@@ -34,7 +34,7 @@ export class RoomManager {
   async create(options?: { ttl?: string }): Promise<Room> {
     const roomId = RoomId.generate()
     const url = roomId.buildUrl(this.baseUrl)
-    const ydoc = new Y.Doc()
+    const ydoc = new Doc()
 
     await this.adapter.createRoom(roomId, ydoc)
 
