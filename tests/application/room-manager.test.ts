@@ -212,13 +212,15 @@ describe('RoomManager', () => {
       vi.useRealTimers()
     })
 
-    it('removes room from map when TTL expires', async () => {
-      const { manager } = createManager({ defaultTtl: '1s' })
+    it('removes room from map and calls destroyRoom when TTL expires', async () => {
+      const { manager, adapter } = createManager({ defaultTtl: '1s' })
       const room = await manager.create()
 
       vi.advanceTimersByTime(1000)
+      await vi.advanceTimersByTimeAsync(0)
 
       expect(manager.get(room.id)).toBeUndefined()
+      expect(adapter.destroyRoom).toHaveBeenCalled()
     })
 
     it('calls onExpire callback when TTL expires', async () => {
