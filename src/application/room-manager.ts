@@ -76,8 +76,8 @@ export class RoomManager {
   }
 
   /** Get a room by its ID */
-  get(roomId: string): Room | undefined {
-    return this.rooms.get(roomId)
+  get(roomId: RoomId): Room | undefined {
+    return this.rooms.get(roomId.toString())
   }
 
   /** List all active rooms */
@@ -86,10 +86,10 @@ export class RoomManager {
   }
 
   /** Destroy a specific room */
-  async destroy(roomId: string): Promise<void> {
-    const room = this.rooms.get(roomId)
+  async destroy(roomId: RoomId): Promise<void> {
+    const room = this.rooms.get(roomId.toString())
     if (!room) return
-    this.rooms.delete(roomId)
+    this.rooms.delete(roomId.toString())
     await room.destroy()
   }
 

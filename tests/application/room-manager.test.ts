@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { RoomManager } from '../../src/application/room-manager.js'
 import type { ProviderAdapter } from '../../src/domain/ports/adapter.js'
+import { RoomId } from '../../src/domain/value-objects/room-id.js'
 import { Awareness } from 'y-protocols/awareness'
 import * as Y from 'yjs'
 
@@ -95,7 +96,7 @@ describe('RoomManager', () => {
     it('makes room retrievable via get()', async () => {
       const { manager } = createManager()
       const room = await manager.create()
-      expect(manager.get(room.id.toString())).toBe(room)
+      expect(manager.get(room.id)).toBe(room)
     })
 
     it('overrides TTL when options.ttl is provided', async () => {
@@ -118,12 +119,12 @@ describe('RoomManager', () => {
     it('returns room if exists', async () => {
       const { manager } = createManager()
       const room = await manager.create()
-      expect(manager.get(room.id.toString())).toBe(room)
+      expect(manager.get(room.id)).toBe(room)
     })
 
     it('returns undefined if not exists', () => {
       const { manager } = createManager()
-      expect(manager.get('nonexistent')).toBeUndefined()
+      expect(manager.get(RoomId.from('nonexistent'))).toBeUndefined()
     })
   })
 
@@ -156,27 +157,27 @@ describe('RoomManager', () => {
     it('destroys the room and removes it from the map', async () => {
       const { manager, adapter } = createManager()
       const room = await manager.create()
-      const roomId = room.id.toString()
 
-      await manager.destroy(roomId)
+      await manager.destroy(room.id)
 
-      expect(manager.get(roomId)).toBeUndefined()
+      expect(manager.get(room.id)).toBeUndefined()
       expect(adapter.destroyRoom).toHaveBeenCalled()
     })
 
     it('does nothing for nonexistent roomId', async () => {
       const { manager } = createManager()
-      await expect(manager.destroy('nonexistent')).resolves.toBeUndefined()
+      await expect(
+        manager.destroy(RoomId.from('nonexistent')),
+      ).resolves.toBeUndefined()
     })
 
     it('makes room unretrievable after destroy', async () => {
       const { manager } = createManager()
       const room = await manager.create()
-      const roomId = room.id.toString()
 
-      await manager.destroy(roomId)
+      await manager.destroy(room.id)
 
-      expect(manager.get(roomId)).toBeUndefined()
+      expect(manager.get(room.id)).toBeUndefined()
       expect(manager.list()).toHaveLength(0)
     })
   })
@@ -214,11 +215,10 @@ describe('RoomManager', () => {
     it('removes room from map when TTL expires', async () => {
       const { manager } = createManager({ defaultTtl: '1s' })
       const room = await manager.create()
-      const roomId = room.id.toString()
 
       vi.advanceTimersByTime(1000)
 
-      expect(manager.get(roomId)).toBeUndefined()
+      expect(manager.get(room.id)).toBeUndefined()
     })
 
     it('calls onExpire callback when TTL expires', async () => {
