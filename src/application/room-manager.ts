@@ -96,6 +96,11 @@ export class RoomManager {
   async destroyAll(): Promise<void> {
     const rooms = [...this.rooms.values()]
     this.rooms.clear()
-    await Promise.allSettled(rooms.map((r) => r.destroy()))
+    const results = await Promise.allSettled(rooms.map((r) => r.destroy()))
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        console.error('Failed to destroy room:', result.reason)
+      }
+    }
   }
 }
