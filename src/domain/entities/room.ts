@@ -11,6 +11,7 @@ import type { TtlTimer } from './ttl-timer.js'
 export class Room {
   private destroyed = false
   private readonly unsubDocUpdate: () => void
+  private readonly unsubAwarenessUpdate: () => void
 
   public readonly id: RoomId
   public readonly url: string
@@ -28,8 +29,9 @@ export class Room {
     this.url = url
     this.ydoc = ydoc
 
-    // Wire doc updates to timer reset
+    // Wire doc and awareness updates to timer reset
     this.unsubDocUpdate = provider.onDocUpdate(id, () => timer.reset())
+    this.unsubAwarenessUpdate = provider.onAwarenessUpdate(id, () => timer.reset())
 
     // Start the TTL timer
     timer.start()
@@ -66,6 +68,7 @@ export class Room {
     this.destroyed = true
 
     this.unsubDocUpdate()
+    this.unsubAwarenessUpdate()
     this.timer.destroy()
     this.awarenessWrapper.destroy()
     await this.provider.destroyRoom(this.id)
