@@ -30,8 +30,11 @@ export class RoomManager {
     this.onExpireCallback = config.onExpire
   }
 
-  /** Create a new room with optional TTL override */
-  async create(options?: { ttl?: string }): Promise<Room> {
+  /** Create a new room with optional TTL and onExpire override */
+  async create(options?: {
+    ttl?: string
+    onExpire?: (roomId: string) => void
+  }): Promise<Room> {
     const roomId = RoomId.generate()
     const url = roomId.buildUrl(this.baseUrl)
     const ydoc = new Doc()
@@ -48,12 +51,14 @@ export class RoomManager {
 
     const ttl = options?.ttl ? Ttl.fromString(options.ttl) : this.defaultTtl
 
+    const expireCallback = options?.onExpire ?? this.onExpireCallback
+
     const onExpire = () => {
       this.destroy(roomId).catch((err: unknown) => {
         console.error(`Failed to destroy room ${roomId}:`, err)
       })
       try {
-        this.onExpireCallback?.(roomId.toString())
+        expireCallback?.(roomId.toString())
       } catch (err) {
         console.error('Error in onExpire callback:', err)
       }

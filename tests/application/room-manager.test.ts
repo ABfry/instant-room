@@ -223,7 +223,7 @@ describe('RoomManager', () => {
       expect(adapter.destroyRoom).toHaveBeenCalled()
     })
 
-    it('calls onExpire callback when TTL expires', async () => {
+    it('calls manager-level onExpire callback when TTL expires', async () => {
       const onExpire = vi.fn()
       const { manager } = createManager({ defaultTtl: '1s', onExpire })
       const room = await manager.create()
@@ -232,6 +232,36 @@ describe('RoomManager', () => {
       vi.advanceTimersByTime(1000)
 
       expect(onExpire).toHaveBeenCalledWith(roomId)
+    })
+
+    it('calls per-room onExpire callback instead of manager-level', async () => {
+      const managerOnExpire = vi.fn()
+      const roomOnExpire = vi.fn()
+      const { manager } = createManager({
+        defaultTtl: '1s',
+        onExpire: managerOnExpire,
+      })
+      const room = await manager.create({ onExpire: roomOnExpire })
+      const roomId = room.id.toString()
+
+      vi.advanceTimersByTime(1000)
+
+      expect(roomOnExpire).toHaveBeenCalledWith(roomId)
+      expect(managerOnExpire).not.toHaveBeenCalled()
+    })
+
+    it('falls back to manager-level onExpire when per-room is not set', async () => {
+      const managerOnExpire = vi.fn()
+      const { manager } = createManager({
+        defaultTtl: '1s',
+        onExpire: managerOnExpire,
+      })
+      const room = await manager.create()
+      const roomId = room.id.toString()
+
+      vi.advanceTimersByTime(1000)
+
+      expect(managerOnExpire).toHaveBeenCalledWith(roomId)
     })
 
     it('does not throw when onExpire callback is not set', async () => {
