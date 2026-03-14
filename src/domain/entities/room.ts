@@ -31,7 +31,9 @@ export class Room {
 
     // Wire doc and awareness updates to timer reset
     this.unsubDocUpdate = provider.onDocUpdate(id, () => timer.reset())
-    this.unsubAwarenessUpdate = provider.onAwarenessUpdate(id, () => timer.reset())
+    this.unsubAwarenessUpdate = provider.onAwarenessUpdate(id, () =>
+      timer.reset(),
+    )
 
     // Start the TTL timer
     timer.start()
