@@ -49,8 +49,7 @@ export class RoomManager {
     const ttl = options?.ttl ? Ttl.fromString(options.ttl) : this.defaultTtl
 
     const onExpire = () => {
-      this.rooms.delete(roomId.toString())
-      room.destroy().catch((err: unknown) => {
+      this.destroy(roomId).catch((err: unknown) => {
         console.error(`Failed to destroy room ${roomId}:`, err)
       })
       try {
