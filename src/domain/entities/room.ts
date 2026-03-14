@@ -12,24 +12,24 @@ export class Room {
   private destroyed = false
   private readonly unsubDocUpdate: () => void
 
-  public readonly id: string
+  public readonly id: RoomId
   public readonly url: string
   public readonly ydoc: Doc
 
   constructor(
-    private readonly awarenessWrapper: AwarenessWrapper,
-    private readonly provider: ProviderAdapter,
-    private readonly roomId: RoomId,
-    private readonly timer: TtlTimer,
+    id: RoomId,
     url: string,
     ydoc: Doc,
+    private readonly awarenessWrapper: AwarenessWrapper,
+    private readonly provider: ProviderAdapter,
+    private readonly timer: TtlTimer,
   ) {
-    this.id = roomId.toString()
+    this.id = id
     this.url = url
     this.ydoc = ydoc
 
     // Wire doc updates to timer reset
-    this.unsubDocUpdate = provider.onDocUpdate(roomId, () => timer.reset())
+    this.unsubDocUpdate = provider.onDocUpdate(id, () => timer.reset())
 
     // Start the TTL timer
     timer.start()
@@ -57,7 +57,7 @@ export class Room {
 
   /** Subscribe to document update events. Returns unsubscribe function. */
   onDocUpdate(cb: () => void): () => void {
-    return this.provider.onDocUpdate(this.roomId, cb)
+    return this.provider.onDocUpdate(this.id, cb)
   }
 
   /** Destroy the room and release all resources */
@@ -68,6 +68,6 @@ export class Room {
     this.unsubDocUpdate()
     this.timer.destroy()
     this.awarenessWrapper.destroy()
-    await this.provider.destroyRoom(this.roomId)
+    await this.provider.destroyRoom(this.id)
   }
 }

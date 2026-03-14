@@ -54,15 +54,15 @@ function createRoom(overrides?: {
   const url = overrides?.url ?? 'https://example.com/r/test-room'
   const ydoc = overrides?.ydoc ?? new Y.Doc()
 
-  const room = new Room(awareness, provider, roomId, timer, url, ydoc)
+  const room = new Room(roomId, url, ydoc, awareness, provider, timer)
   return { room, awareness, provider, timer, roomId, url, ydoc }
 }
 
 describe('Room', () => {
   describe('constructor', () => {
-    it('exposes id from roomId.toString()', () => {
-      const { room } = createRoom()
-      expect(room.id).toBe('test-room')
+    it('exposes id as RoomId', () => {
+      const { room, roomId } = createRoom()
+      expect(room.id).toBe(roomId)
     })
 
     it('exposes url as provided', () => {
