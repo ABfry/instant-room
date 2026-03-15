@@ -26,14 +26,14 @@ function createManager(overrides?: {
   adapter?: ProviderAdapter
   baseUrl?: string
   defaultTtl?: string
-  onExpire?: (roomId: string) => void
+  defaultOnExpire?: (roomId: string) => void
 }) {
   const adapter = overrides?.adapter ?? createMockAdapter()
   const manager = new RoomManager({
     adapter,
     baseUrl: overrides?.baseUrl ?? 'https://example.com/r',
     defaultTtl: overrides?.defaultTtl ?? '1h',
-    onExpire: overrides?.onExpire,
+    defaultOnExpire: overrides?.defaultOnExpire,
   })
   return { manager, adapter }
 }
@@ -225,7 +225,7 @@ describe('RoomManager', () => {
 
     it('calls manager-level onExpire callback when TTL expires', async () => {
       const onExpire = vi.fn()
-      const { manager } = createManager({ defaultTtl: '1s', onExpire })
+      const { manager } = createManager({ defaultTtl: '1s', defaultOnExpire: onExpire })
       const room = await manager.create()
       const roomId = room.id.toString()
 
@@ -239,7 +239,7 @@ describe('RoomManager', () => {
       const roomOnExpire = vi.fn()
       const { manager } = createManager({
         defaultTtl: '1s',
-        onExpire: managerOnExpire,
+        defaultOnExpire: managerOnExpire,
       })
       const room = await manager.create({ onExpire: roomOnExpire })
       const roomId = room.id.toString()
@@ -254,7 +254,7 @@ describe('RoomManager', () => {
       const managerOnExpire = vi.fn()
       const { manager } = createManager({
         defaultTtl: '1s',
-        onExpire: managerOnExpire,
+        defaultOnExpire: managerOnExpire,
       })
       const room = await manager.create()
       const roomId = room.id.toString()

@@ -10,7 +10,7 @@ export interface RoomManagerConfig {
   adapter: ProviderAdapter
   baseUrl: string
   defaultTtl: string
-  onExpire?: (roomId: string) => void
+  defaultOnExpire?: (roomId: string) => void
 }
 
 /**
@@ -27,7 +27,7 @@ export class RoomManager {
     this.adapter = config.adapter
     this.baseUrl = config.baseUrl
     this.defaultTtl = Ttl.fromString(config.defaultTtl)
-    this.onExpireCallback = config.onExpire
+    this.onExpireCallback = config.defaultOnExpire
   }
 
   /** Create a new room with optional TTL and onExpire override */
