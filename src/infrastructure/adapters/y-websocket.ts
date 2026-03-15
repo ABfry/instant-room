@@ -75,9 +75,10 @@ export class YWebsocketAdapter implements ProviderAdapter {
     this.wss.on('connection', this.connectionHandler)
   }
 
-  async createRoom(roomId: RoomId, ydoc: Doc): Promise<void> {
+  async createRoom(roomId: RoomId, ydoc: Doc): Promise<Awareness> {
     const name = roomId.toString()
-    if (this.rooms.has(name)) return
+    const existing = this.rooms.get(name)
+    if (existing) return existing.awareness
 
     const awareness = new Awareness(ydoc)
 
@@ -131,6 +132,8 @@ export class YWebsocketAdapter implements ProviderAdapter {
       docUpdateHandler,
       awarenessChangeHandler,
     })
+
+    return awareness
   }
 
   async destroyRoom(roomId: RoomId): Promise<void> {

@@ -39,14 +39,9 @@ export class RoomManager {
     const url = roomId.buildUrl(this.baseUrl)
     const ydoc = new Doc()
 
-    await this.adapter.createRoom(roomId, ydoc)
+    const awareness = await this.adapter.createRoom(roomId, ydoc)
 
     try {
-      const awareness = this.adapter.getAwareness(roomId)
-      if (!awareness) {
-        throw new Error('Awareness not available after createRoom')
-      }
-
       const awarenessWrapper = new AwarenessWrapper(awareness)
 
       const ttl = options?.ttl ? Ttl.fromString(options.ttl) : this.defaultTtl
