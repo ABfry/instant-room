@@ -88,6 +88,14 @@ describe('Room', () => {
         expect.any(Function),
       )
     })
+
+    it('subscribes to provider.onAwarenessUpdate on construction', () => {
+      const { provider, roomId } = createRoom()
+      expect(provider.onAwarenessUpdate).toHaveBeenCalledWith(
+        roomId,
+        expect.any(Function),
+      )
+    })
   })
 
   describe('TTL reset on doc update', () => {
@@ -96,11 +104,25 @@ describe('Room', () => {
       const timer = createMockTimer()
       createRoom({ provider, timer })
 
-      // Extract the callback passed to onDocUpdate
       const docUpdateCallback = (
         provider.onDocUpdate as ReturnType<typeof vi.fn>
       ).mock.calls[0][1] as () => void
       docUpdateCallback()
+
+      expect(timer.reset).toHaveBeenCalledOnce()
+    })
+  })
+
+  describe('TTL reset on awareness update', () => {
+    it('resets timer when awareness update callback fires', () => {
+      const provider = createMockProvider()
+      const timer = createMockTimer()
+      createRoom({ provider, timer })
+
+      const awarenessUpdateCallback = (
+        provider.onAwarenessUpdate as ReturnType<typeof vi.fn>
+      ).mock.calls[0][1] as () => void
+      awarenessUpdateCallback()
 
       expect(timer.reset).toHaveBeenCalledOnce()
     })
@@ -187,6 +209,19 @@ describe('Room', () => {
       const unsub = vi.fn()
       const provider = createMockProvider()
       ;(provider.onDocUpdate as ReturnType<typeof vi.fn>).mockReturnValue(unsub)
+      const { room } = createRoom({ provider })
+
+      await room.destroy()
+
+      expect(unsub).toHaveBeenCalledOnce()
+    })
+
+    it('calls unsubscribe for internal awareness update listener', async () => {
+      const unsub = vi.fn()
+      const provider = createMockProvider()
+      ;(provider.onAwarenessUpdate as ReturnType<typeof vi.fn>).mockReturnValue(
+        unsub,
+      )
       const { room } = createRoom({ provider })
 
       await room.destroy()
