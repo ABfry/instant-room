@@ -138,17 +138,21 @@ describe('YWebsocketAdapter', () => {
   // ==========================================================================
 
   describe('createRoom', () => {
-    it('creates a room', async () => {
-      const { roomId } = await createRoom('test-room')
-      expect(adapter.getAwareness(roomId)).toBeInstanceOf(Awareness)
+    it('creates a room and returns Awareness', async () => {
+      const roomId = RoomId.from('test-room')
+      const doc = new Doc()
+      const awareness = await adapter.createRoom(roomId, doc)
+      createdRoomIds.push(roomId)
+
+      expect(awareness).toBeInstanceOf(Awareness)
+      expect(adapter.getAwareness(roomId)).toBe(awareness)
     })
 
-    it('does not overwrite on duplicate create', async () => {
+    it('returns same Awareness on duplicate create', async () => {
       const { roomId, doc } = await createRoom('test-room')
       const awareness1 = adapter.getAwareness(roomId)
 
-      await adapter.createRoom(roomId, doc)
-      const awareness2 = adapter.getAwareness(roomId)
+      const awareness2 = await adapter.createRoom(roomId, doc)
 
       expect(awareness1).toBe(awareness2)
     })

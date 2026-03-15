@@ -13,7 +13,9 @@ function createMockAdapter(
   overrides?: Partial<ProviderAdapter>,
 ): ProviderAdapter {
   return {
-    createRoom: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+    createRoom: vi
+      .fn<() => Promise<Awareness>>()
+      .mockResolvedValue(createMockAwareness()),
     destroyRoom: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
     getAwareness: vi.fn().mockReturnValue(createMockAwareness()),
     onDocUpdate: vi.fn().mockReturnValue(vi.fn()),
@@ -75,22 +77,10 @@ describe('RoomManager', () => {
       )
     })
 
-    it('calls adapter.getAwareness after createRoom', async () => {
+    it('uses Awareness returned by createRoom', async () => {
       const { manager, adapter } = createManager()
       await manager.create()
-      expect(adapter.getAwareness).toHaveBeenCalled()
-    })
-
-    it('throws and cleans up if getAwareness returns null', async () => {
-      const adapter = createMockAdapter({
-        getAwareness: vi.fn().mockReturnValue(null),
-      })
-      const { manager } = createManager({ adapter })
-
-      await expect(manager.create()).rejects.toThrow(
-        'Awareness not available after createRoom',
-      )
-      expect(adapter.destroyRoom).toHaveBeenCalled()
+      expect(adapter.createRoom).toHaveBeenCalled()
     })
 
     it('makes room retrievable via get()', async () => {
