@@ -41,42 +41,46 @@ export class RoomManager {
 
     await this.adapter.createRoom(roomId, ydoc)
 
-    const awareness = this.adapter.getAwareness(roomId)
-    if (!awareness) {
-      await this.adapter.destroyRoom(roomId)
-      throw new Error('Awareness not available after createRoom')
-    }
-
-    const awarenessWrapper = new AwarenessWrapper(awareness)
-
-    const ttl = options?.ttl ? Ttl.fromString(options.ttl) : this.defaultTtl
-
-    const expireCallback = options?.onExpire ?? this.onExpireCallback
-
-    const onExpire = () => {
-      this.destroy(roomId).catch((err: unknown) => {
-        console.error(`Failed to destroy room ${roomId}:`, err)
-      })
-      try {
-        expireCallback?.(roomId.toString())
-      } catch (err) {
-        console.error('Error in onExpire callback:', err)
+    try {
+      const awareness = this.adapter.getAwareness(roomId)
+      if (!awareness) {
+        throw new Error('Awareness not available after createRoom')
       }
+
+      const awarenessWrapper = new AwarenessWrapper(awareness)
+
+      const ttl = options?.ttl ? Ttl.fromString(options.ttl) : this.defaultTtl
+
+      const expireCallback = options?.onExpire ?? this.onExpireCallback
+
+      const onExpire = () => {
+        this.destroy(roomId).catch((err: unknown) => {
+          console.error(`Failed to destroy room ${roomId}:`, err)
+        })
+        try {
+          expireCallback?.(roomId.toString())
+        } catch (err) {
+          console.error('Error in onExpire callback:', err)
+        }
+      }
+
+      const timer = new TtlTimer(ttl.toMs(), onExpire)
+
+      const room = new Room(
+        roomId,
+        url,
+        ydoc,
+        awarenessWrapper,
+        this.adapter,
+        timer,
+      )
+
+      this.rooms.set(roomId.toString(), room)
+      return room
+    } catch (err) {
+      await this.adapter.destroyRoom(roomId)
+      throw err
     }
-
-    const timer = new TtlTimer(ttl.toMs(), onExpire)
-
-    const room = new Room(
-      roomId,
-      url,
-      ydoc,
-      awarenessWrapper,
-      this.adapter,
-      timer,
-    )
-
-    this.rooms.set(roomId.toString(), room)
-    return room
   }
 
   /** Get a room by its ID */
