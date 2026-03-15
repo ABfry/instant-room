@@ -5,7 +5,7 @@ import type { RoomId } from '../value-objects/room-id.js'
 /** Port interface for provider adapters */
 export interface ProviderAdapter {
   /** Create/register a room on the provider */
-  createRoom(roomId: RoomId, ydoc: Doc): Promise<void>
+  createRoom(roomId: RoomId, ydoc: Doc): Promise<Awareness>
 
   /** Destroy a room on the provider */
   destroyRoom(roomId: RoomId): Promise<void>
