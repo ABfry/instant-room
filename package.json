@@ -8,6 +8,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
+    },
+    "./adapters/y-websocket": {
+      "types": "./dist/infrastructure/adapters/y-websocket-entry.d.ts",
+      "import": "./dist/infrastructure/adapters/y-websocket-entry.mjs",
+      "require": "./dist/infrastructure/adapters/y-websocket-entry.cjs"
     }
   },
   "files": [
