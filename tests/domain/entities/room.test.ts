@@ -263,4 +263,12 @@ describe('Room', () => {
       expect(result).toBeInstanceOf(Promise)
     })
   })
+
+  describe('touch', () => {
+    it('resets the timer', () => {
+      const { room, timer } = createRoom()
+      room.touch()
+      expect(timer.reset).toHaveBeenCalledOnce()
+    })
+  })
 })

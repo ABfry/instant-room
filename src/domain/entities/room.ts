@@ -64,6 +64,11 @@ export class Room {
     return this.provider.onDocUpdate(this.id, cb)
   }
 
+  /** Touch the room to reset the TTL */
+  touch(): void {
+    this.timer.reset()
+  }
+
   /** Destroy the room and release all resources */
   async destroy(): Promise<void> {
     if (this.destroyed) return
