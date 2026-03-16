@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import * as Y from 'yjs'
+import { Awareness } from 'y-protocols/awareness'
 import { Room } from '../../../src/domain/entities/room.js'
 import { RoomId } from '../../../src/domain/value-objects/room-id.js'
 import type { ProviderAdapter } from '../../../src/domain/ports/adapter.js'
@@ -10,7 +11,9 @@ import type { Participant } from '../../../src/domain/types/participant.js'
 function createMockProvider(): ProviderAdapter {
   const unsubDocUpdate = vi.fn()
   return {
-    createRoom: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+    createRoom: vi
+      .fn<() => Promise<Awareness>>()
+      .mockResolvedValue(new Awareness(new Y.Doc())),
     destroyRoom: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
     getAwareness: vi.fn().mockReturnValue(null),
     onDocUpdate: vi.fn().mockReturnValue(unsubDocUpdate),
