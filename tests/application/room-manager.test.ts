@@ -28,7 +28,7 @@ function createManager(overrides?: {
   adapter?: ProviderAdapter
   baseUrl?: string
   defaultTtl?: string
-  defaultOnExpire?: (roomId: string) => void
+  defaultOnExpire?: (roomId: RoomId) => void
 }) {
   const adapter = overrides?.adapter ?? createMockAdapter()
   const manager = new RoomManager({
@@ -217,11 +217,10 @@ describe('RoomManager', () => {
       const onExpire = vi.fn()
       const { manager } = createManager({ defaultTtl: '1s', defaultOnExpire: onExpire })
       const room = await manager.create()
-      const roomId = room.id.toString()
 
       vi.advanceTimersByTime(1000)
 
-      expect(onExpire).toHaveBeenCalledWith(roomId)
+      expect(onExpire).toHaveBeenCalledWith(room.id)
     })
 
     it('calls per-room onExpire callback instead of manager-level', async () => {
@@ -232,11 +231,10 @@ describe('RoomManager', () => {
         defaultOnExpire: managerOnExpire,
       })
       const room = await manager.create({ onExpire: roomOnExpire })
-      const roomId = room.id.toString()
 
       vi.advanceTimersByTime(1000)
 
-      expect(roomOnExpire).toHaveBeenCalledWith(roomId)
+      expect(roomOnExpire).toHaveBeenCalledWith(room.id)
       expect(managerOnExpire).not.toHaveBeenCalled()
     })
 
@@ -247,11 +245,10 @@ describe('RoomManager', () => {
         defaultOnExpire: managerOnExpire,
       })
       const room = await manager.create()
-      const roomId = room.id.toString()
 
       vi.advanceTimersByTime(1000)
 
-      expect(managerOnExpire).toHaveBeenCalledWith(roomId)
+      expect(managerOnExpire).toHaveBeenCalledWith(room.id)
     })
 
     it('does not throw when onExpire callback is not set', async () => {

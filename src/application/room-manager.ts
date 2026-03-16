@@ -10,7 +10,7 @@ export interface RoomManagerConfig {
   adapter: ProviderAdapter
   baseUrl: string
   defaultTtl: string
-  defaultOnExpire?: (roomId: string) => void
+  defaultOnExpire?: (roomId: RoomId) => void
 }
 
 /**
@@ -20,7 +20,7 @@ export class RoomManager {
   private readonly adapter: ProviderAdapter
   private readonly baseUrl: string
   private readonly defaultTtl: Ttl
-  private readonly onExpireCallback?: (roomId: string) => void
+  private readonly onExpireCallback?: (roomId: RoomId) => void
   private readonly rooms = new Map<string, Room>()
 
   constructor(config: RoomManagerConfig) {
@@ -33,7 +33,7 @@ export class RoomManager {
   /** Create a new room with optional TTL and onExpire override */
   async create(options?: {
     ttl?: string
-    onExpire?: (roomId: string) => void
+    onExpire?: (roomId: RoomId) => void
   }): Promise<Room> {
     const roomId = RoomId.generate()
     const url = roomId.buildUrl(this.baseUrl)
@@ -53,7 +53,7 @@ export class RoomManager {
           console.error(`Failed to destroy room ${roomId}:`, err)
         })
         try {
-          expireCallback?.(roomId.toString())
+          expireCallback?.(roomId)
         } catch (err) {
           console.error('Error in onExpire callback:', err)
         }
