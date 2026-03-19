@@ -61,14 +61,11 @@ export class RoomManager {
 
       const timer = new TtlTimer(ttl.toMs(), onExpire)
 
-      const room = new Room(
-        roomId,
-        url,
-        ydoc,
+      const room = new Room(roomId, url, ydoc, {
         awarenessWrapper,
-        this.adapter,
+        provider: this.adapter,
         timer,
-      )
+      })
 
       this.rooms.set(roomId.toString(), room)
       return room

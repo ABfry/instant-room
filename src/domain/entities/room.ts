@@ -5,6 +5,12 @@ import type { RoomId } from '../value-objects/room-id.js'
 import type { AwarenessWrapper } from './awareness.js'
 import type { TtlTimer } from './ttl-timer.js'
 
+export interface RoomDeps {
+  awarenessWrapper: AwarenessWrapper
+  provider: ProviderAdapter
+  timer: TtlTimer
+}
+
 /**
  * Integrates TTL, Awareness, and ProviderAdapter into a single room entity.
  */
@@ -12,31 +18,32 @@ export class Room {
   private destroyed = false
   private readonly unsubDocUpdate: () => void
   private readonly unsubAwarenessUpdate: () => void
+  private readonly awarenessWrapper: AwarenessWrapper
+  private readonly provider: ProviderAdapter
+  private readonly timer: TtlTimer
 
   public readonly id: RoomId
   public readonly url: string
   public readonly ydoc: Doc
 
-  constructor(
-    id: RoomId,
-    url: string,
-    ydoc: Doc,
-    private readonly awarenessWrapper: AwarenessWrapper,
-    private readonly provider: ProviderAdapter,
-    private readonly timer: TtlTimer,
-  ) {
+  constructor(id: RoomId, url: string, ydoc: Doc, deps: RoomDeps) {
     this.id = id
     this.url = url
     this.ydoc = ydoc
+    this.awarenessWrapper = deps.awarenessWrapper
+    this.provider = deps.provider
+    this.timer = deps.timer
 
     // Wire doc and awareness updates to timer reset
-    this.unsubDocUpdate = provider.onDocUpdate(id, () => timer.reset())
-    this.unsubAwarenessUpdate = provider.onAwarenessUpdate(id, () =>
-      timer.reset(),
+    this.unsubDocUpdate = this.provider.onDocUpdate(id, () =>
+      this.timer.reset(),
+    )
+    this.unsubAwarenessUpdate = this.provider.onAwarenessUpdate(id, () =>
+      this.timer.reset(),
     )
 
     // Start the TTL timer
-    timer.start()
+    this.timer.start()
   }
 
   /** Get all connected participants */

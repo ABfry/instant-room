@@ -57,7 +57,11 @@ function createRoom(overrides?: {
   const url = overrides?.url ?? 'https://example.com/r/test-room'
   const ydoc = overrides?.ydoc ?? new Y.Doc()
 
-  const room = new Room(roomId, url, ydoc, awareness, provider, timer)
+  const room = new Room(roomId, url, ydoc, {
+    awarenessWrapper: awareness,
+    provider,
+    timer,
+  })
   return { room, awareness, provider, timer, roomId, url, ydoc }
 }
 
