@@ -204,10 +204,23 @@ describe('Room', () => {
       const { room, roomId } = createRoom({ provider })
 
       const cb = vi.fn()
-      const result = room.onDocUpdate(cb)
+      room.onDocUpdate(cb)
 
       expect(provider.onDocUpdate).toHaveBeenCalledWith(roomId, cb)
-      expect(result).toBe(unsub)
+    })
+
+    it('calls provider unsubscribe when returned function is called', () => {
+      const provider = createMockProvider()
+      const providerUnsub = vi.fn()
+      ;(provider.onDocUpdate as ReturnType<typeof vi.fn>).mockReturnValue(
+        providerUnsub,
+      )
+      const { room } = createRoom({ provider })
+
+      const unsub = room.onDocUpdate(vi.fn())
+      unsub()
+
+      expect(providerUnsub).toHaveBeenCalledOnce()
     })
   })
 
@@ -252,6 +265,38 @@ describe('Room', () => {
       const { room, provider, roomId } = createRoom()
       await room.destroy()
       expect(provider.destroyRoom).toHaveBeenCalledWith(roomId)
+    })
+
+    it('unsubscribes external onDocUpdate listeners', async () => {
+      const provider = createMockProvider()
+      const providerUnsub = vi.fn()
+      ;(provider.onDocUpdate as ReturnType<typeof vi.fn>).mockReturnValue(
+        providerUnsub,
+      )
+      const { room } = createRoom({ provider })
+
+      room.onDocUpdate(vi.fn())
+      room.onDocUpdate(vi.fn())
+      await room.destroy()
+
+      // 2 external + 1 internal (constructor) = 3 calls
+      expect(providerUnsub).toHaveBeenCalledTimes(3)
+    })
+
+    it('does not double-unsubscribe manually removed listeners', async () => {
+      const provider = createMockProvider()
+      const providerUnsub = vi.fn()
+      ;(provider.onDocUpdate as ReturnType<typeof vi.fn>).mockReturnValue(
+        providerUnsub,
+      )
+      const { room } = createRoom({ provider })
+
+      const unsub = room.onDocUpdate(vi.fn())
+      unsub() // manual unsubscribe
+      await room.destroy()
+
+      // 1 manual + 1 internal (constructor) = 2 calls
+      expect(providerUnsub).toHaveBeenCalledTimes(2)
     })
 
     it('is idempotent', async () => {

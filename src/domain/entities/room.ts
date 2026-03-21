@@ -18,6 +18,7 @@ export class Room {
   private destroyed = false
   private readonly unsubDocUpdate: () => void
   private readonly unsubAwarenessUpdate: () => void
+  private readonly externalDocUpdateUnsubs = new Set<() => void>()
   private readonly awarenessWrapper: AwarenessWrapper
   private readonly provider: ProviderAdapter
   private readonly timer: TtlTimer
@@ -68,7 +69,13 @@ export class Room {
 
   /** Subscribe to document update events. Returns unsubscribe function. */
   onDocUpdate(cb: () => void): () => void {
-    return this.provider.onDocUpdate(this.id, cb)
+    const unsub = this.provider.onDocUpdate(this.id, cb)
+    const wrappedUnsub = () => {
+      this.externalDocUpdateUnsubs.delete(wrappedUnsub)
+      unsub()
+    }
+    this.externalDocUpdateUnsubs.add(wrappedUnsub)
+    return wrappedUnsub
   }
 
   /** Touch the room to reset the TTL */
@@ -83,6 +90,9 @@ export class Room {
 
     this.unsubDocUpdate()
     this.unsubAwarenessUpdate()
+    for (const unsub of this.externalDocUpdateUnsubs) {
+      unsub()
+    }
     this.timer.destroy()
     this.awarenessWrapper.destroy()
     await this.provider.destroyRoom(this.id)
