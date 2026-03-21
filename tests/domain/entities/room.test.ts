@@ -269,34 +269,39 @@ describe('Room', () => {
 
     it('unsubscribes external onDocUpdate listeners', async () => {
       const provider = createMockProvider()
-      const providerUnsub = vi.fn()
-      ;(provider.onDocUpdate as ReturnType<typeof vi.fn>).mockReturnValue(
-        providerUnsub,
-      )
+      const providerUnsubInternal = vi.fn()
+      const providerUnsubExternal1 = vi.fn()
+      const providerUnsubExternal2 = vi.fn()
+      ;(provider.onDocUpdate as ReturnType<typeof vi.fn>)
+        .mockReturnValueOnce(providerUnsubInternal) // internal (constructor)
+        .mockReturnValueOnce(providerUnsubExternal1) // first external
+        .mockReturnValueOnce(providerUnsubExternal2) // second external
       const { room } = createRoom({ provider })
 
       room.onDocUpdate(vi.fn())
       room.onDocUpdate(vi.fn())
       await room.destroy()
 
-      // 2 external + 1 internal (constructor) = 3 calls
-      expect(providerUnsub).toHaveBeenCalledTimes(3)
+      expect(providerUnsubInternal).toHaveBeenCalledTimes(1)
+      expect(providerUnsubExternal1).toHaveBeenCalledTimes(1)
+      expect(providerUnsubExternal2).toHaveBeenCalledTimes(1)
     })
 
     it('does not double-unsubscribe manually removed listeners', async () => {
       const provider = createMockProvider()
-      const providerUnsub = vi.fn()
-      ;(provider.onDocUpdate as ReturnType<typeof vi.fn>).mockReturnValue(
-        providerUnsub,
-      )
+      const providerUnsubInternal = vi.fn()
+      const providerUnsubExternal = vi.fn()
+      ;(provider.onDocUpdate as ReturnType<typeof vi.fn>)
+        .mockReturnValueOnce(providerUnsubInternal) // internal (constructor)
+        .mockReturnValueOnce(providerUnsubExternal) // external
       const { room } = createRoom({ provider })
 
       const unsub = room.onDocUpdate(vi.fn())
       unsub() // manual unsubscribe
       await room.destroy()
 
-      // 1 manual + 1 internal (constructor) = 2 calls
-      expect(providerUnsub).toHaveBeenCalledTimes(2)
+      expect(providerUnsubInternal).toHaveBeenCalledTimes(1)
+      expect(providerUnsubExternal).toHaveBeenCalledTimes(1)
     })
 
     it('is idempotent', async () => {
