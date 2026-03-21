@@ -90,7 +90,9 @@ export class Room {
 
     this.unsubDocUpdate()
     this.unsubAwarenessUpdate()
-    for (const unsub of this.externalDocUpdateUnsubs) {
+    const externalUnsubs = [...this.externalDocUpdateUnsubs]
+    this.externalDocUpdateUnsubs.clear()
+    for (const unsub of externalUnsubs) {
       unsub()
     }
     this.timer.destroy()
