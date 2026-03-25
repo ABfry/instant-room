@@ -209,6 +209,12 @@ describe('Room', () => {
       expect(provider.onDocUpdate).toHaveBeenCalledWith(roomId, cb)
     })
 
+    it('throws if room is already destroyed', async () => {
+      const { room } = createRoom()
+      await room.destroy()
+      expect(() => room.onDocUpdate(vi.fn())).toThrow('Room already destroyed')
+    })
+
     it('calls provider unsubscribe when returned function is called', () => {
       const provider = createMockProvider()
       const providerUnsub = vi.fn()

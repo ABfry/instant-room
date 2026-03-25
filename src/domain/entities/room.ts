@@ -69,6 +69,7 @@ export class Room {
 
   /** Subscribe to document update events. Returns unsubscribe function. */
   onDocUpdate(cb: () => void): () => void {
+    if (this.destroyed) throw new Error('Room already destroyed')
     const unsub = this.provider.onDocUpdate(this.id, cb)
     let called = false
     const wrappedUnsub = () => {
