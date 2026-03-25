@@ -72,11 +72,10 @@ export class Room {
     const unsub = this.provider.onDocUpdate(this.id, cb)
     let called = false
     const wrappedUnsub = () => {
+      if (called) return
+      called = true
       this.externalDocUpdateUnsubs.delete(wrappedUnsub)
-      if (!called) {
-        called = true
-        unsub()
-      }
+      unsub()
     }
     this.externalDocUpdateUnsubs.add(wrappedUnsub)
     return wrappedUnsub
