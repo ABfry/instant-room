@@ -204,10 +204,29 @@ describe('Room', () => {
       const { room, roomId } = createRoom({ provider })
 
       const cb = vi.fn()
-      const result = room.onDocUpdate(cb)
+      room.onDocUpdate(cb)
 
       expect(provider.onDocUpdate).toHaveBeenCalledWith(roomId, cb)
-      expect(result).toBe(unsub)
+    })
+
+    it('throws if room is already destroyed', async () => {
+      const { room } = createRoom()
+      await room.destroy()
+      expect(() => room.onDocUpdate(vi.fn())).toThrow('Room already destroyed')
+    })
+
+    it('calls provider unsubscribe when returned function is called', () => {
+      const provider = createMockProvider()
+      const providerUnsub = vi.fn()
+      ;(provider.onDocUpdate as ReturnType<typeof vi.fn>).mockReturnValue(
+        providerUnsub,
+      )
+      const { room } = createRoom({ provider })
+
+      const unsub = room.onDocUpdate(vi.fn())
+      unsub()
+
+      expect(providerUnsub).toHaveBeenCalledOnce()
     })
   })
 
@@ -252,6 +271,43 @@ describe('Room', () => {
       const { room, provider, roomId } = createRoom()
       await room.destroy()
       expect(provider.destroyRoom).toHaveBeenCalledWith(roomId)
+    })
+
+    it('unsubscribes external onDocUpdate listeners', async () => {
+      const provider = createMockProvider()
+      const providerUnsubInternal = vi.fn()
+      const providerUnsubExternal1 = vi.fn()
+      const providerUnsubExternal2 = vi.fn()
+      ;(provider.onDocUpdate as ReturnType<typeof vi.fn>)
+        .mockReturnValueOnce(providerUnsubInternal) // internal (constructor)
+        .mockReturnValueOnce(providerUnsubExternal1) // first external
+        .mockReturnValueOnce(providerUnsubExternal2) // second external
+      const { room } = createRoom({ provider })
+
+      room.onDocUpdate(vi.fn())
+      room.onDocUpdate(vi.fn())
+      await room.destroy()
+
+      expect(providerUnsubInternal).toHaveBeenCalledTimes(1)
+      expect(providerUnsubExternal1).toHaveBeenCalledTimes(1)
+      expect(providerUnsubExternal2).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not double-unsubscribe manually removed listeners', async () => {
+      const provider = createMockProvider()
+      const providerUnsubInternal = vi.fn()
+      const providerUnsubExternal = vi.fn()
+      ;(provider.onDocUpdate as ReturnType<typeof vi.fn>)
+        .mockReturnValueOnce(providerUnsubInternal) // internal (constructor)
+        .mockReturnValueOnce(providerUnsubExternal) // external
+      const { room } = createRoom({ provider })
+
+      const unsub = room.onDocUpdate(vi.fn())
+      unsub() // manual unsubscribe
+      await room.destroy()
+
+      expect(providerUnsubInternal).toHaveBeenCalledTimes(1)
+      expect(providerUnsubExternal).toHaveBeenCalledTimes(1)
     })
 
     it('is idempotent', async () => {
