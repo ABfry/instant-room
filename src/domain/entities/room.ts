@@ -43,7 +43,10 @@ export class Room {
       this.timer.reset(),
     )
 
-    // Start the TTL timer
+  }
+
+  /** Activate the room's TTL timer */
+  start(): void {
     this.timer.start()
   }
 
