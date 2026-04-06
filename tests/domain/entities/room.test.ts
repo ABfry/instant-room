@@ -83,9 +83,9 @@ describe('Room', () => {
       expect(room.ydoc).toBe(ydoc)
     })
 
-    it('starts the timer on construction', () => {
+    it('does not start the timer on construction', () => {
       const { timer } = createRoom()
-      expect(timer.start).toHaveBeenCalledOnce()
+      expect(timer.start).not.toHaveBeenCalled()
     })
 
     it('subscribes to provider.onDocUpdate on construction', () => {
@@ -102,6 +102,14 @@ describe('Room', () => {
         roomId,
         expect.any(Function),
       )
+    })
+  })
+
+  describe('start', () => {
+    it('starts the timer', () => {
+      const { room, timer } = createRoom()
+      room.start()
+      expect(timer.start).toHaveBeenCalledOnce()
     })
   })
 
