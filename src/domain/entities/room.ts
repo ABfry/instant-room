@@ -15,6 +15,7 @@ export interface RoomDeps {
  * Integrates TTL, Awareness, and ProviderAdapter into a single room entity.
  */
 export class Room {
+  private started = false
   private destroyed = false
   private readonly unsubDocUpdate: () => void
   private readonly unsubAwarenessUpdate: () => void
@@ -36,14 +37,18 @@ export class Room {
     this.timer = deps.timer
 
     // Wire doc and awareness updates to timer reset
-    this.unsubDocUpdate = this.provider.onDocUpdate(id, () =>
-      this.timer.reset(),
-    )
-    this.unsubAwarenessUpdate = this.provider.onAwarenessUpdate(id, () =>
-      this.timer.reset(),
-    )
+    this.unsubDocUpdate = this.provider.onDocUpdate(id, () => {
+      if (this.started) this.timer.reset()
+    })
+    this.unsubAwarenessUpdate = this.provider.onAwarenessUpdate(id, () => {
+      if (this.started) this.timer.reset()
+    })
 
-    // Start the TTL timer
+  }
+
+  /** Activate the room's TTL timer */
+  start(): void {
+    this.started = true
     this.timer.start()
   }
 

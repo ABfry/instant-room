@@ -67,6 +67,7 @@ export class RoomManager {
         timer,
       })
 
+      room.start()
       this.rooms.set(roomId.toString(), room)
       return room
     } catch (err) {
