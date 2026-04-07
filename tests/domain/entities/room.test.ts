@@ -114,7 +114,21 @@ describe('Room', () => {
   })
 
   describe('TTL reset on doc update', () => {
-    it('resets timer when doc update callback fires', () => {
+    it('resets timer when doc update callback fires after start', () => {
+      const provider = createMockProvider()
+      const timer = createMockTimer()
+      const { room } = createRoom({ provider, timer })
+      room.start()
+
+      const docUpdateCallback = (
+        provider.onDocUpdate as ReturnType<typeof vi.fn>
+      ).mock.calls[0][1] as () => void
+      docUpdateCallback()
+
+      expect(timer.reset).toHaveBeenCalledOnce()
+    })
+
+    it('does not reset timer when doc update fires before start', () => {
       const provider = createMockProvider()
       const timer = createMockTimer()
       createRoom({ provider, timer })
@@ -124,12 +138,26 @@ describe('Room', () => {
       ).mock.calls[0][1] as () => void
       docUpdateCallback()
 
-      expect(timer.reset).toHaveBeenCalledOnce()
+      expect(timer.reset).not.toHaveBeenCalled()
     })
   })
 
   describe('TTL reset on awareness update', () => {
-    it('resets timer when awareness update callback fires', () => {
+    it('resets timer when awareness update callback fires after start', () => {
+      const provider = createMockProvider()
+      const timer = createMockTimer()
+      const { room } = createRoom({ provider, timer })
+      room.start()
+
+      const awarenessUpdateCallback = (
+        provider.onAwarenessUpdate as ReturnType<typeof vi.fn>
+      ).mock.calls[0][1] as () => void
+      awarenessUpdateCallback()
+
+      expect(timer.reset).toHaveBeenCalledOnce()
+    })
+
+    it('does not reset timer when awareness update fires before start', () => {
       const provider = createMockProvider()
       const timer = createMockTimer()
       createRoom({ provider, timer })
@@ -139,7 +167,7 @@ describe('Room', () => {
       ).mock.calls[0][1] as () => void
       awarenessUpdateCallback()
 
-      expect(timer.reset).toHaveBeenCalledOnce()
+      expect(timer.reset).not.toHaveBeenCalled()
     })
   })
 
