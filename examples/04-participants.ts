@@ -49,6 +49,6 @@ process.on('SIGINT', async () => {
   unsubUpdate()
   await manager.destroyAll()
   adapter.destroy()
-  wss.close()
+  await new Promise<void>((resolve) => wss.close(() => resolve()))
   process.exit(0)
 })
