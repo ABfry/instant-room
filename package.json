@@ -25,7 +25,11 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint src/",
     "format": "prettier --write src/ tests/",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "example:basic": "tsx examples/01-basic-room.ts",
+    "example:custom-ttl": "tsx examples/02-custom-ttl.ts",
+    "example:ttl-expiration": "tsx examples/03-ttl-expiration.ts",
+    "example:participants": "tsx examples/04-participants.ts"
   },
   "keywords": [
     "yjs",
