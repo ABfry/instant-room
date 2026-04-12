@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Ephemeral collaboration rooms — just share a URL",
   "type": "module",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -59,6 +60,9 @@
   "peerDependencies": {
     "y-protocols": ">=1.0.0",
     "yjs": ">=13.6.0"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
