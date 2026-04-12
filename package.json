@@ -58,8 +58,14 @@
     "nanoid": "^5.0.9"
   },
   "peerDependencies": {
+    "ws": ">=8.0.0",
     "y-protocols": ">=1.0.0",
     "yjs": ">=13.6.0"
+  },
+  "peerDependenciesMeta": {
+    "ws": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=18"
