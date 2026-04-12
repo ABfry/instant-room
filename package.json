@@ -43,6 +43,14 @@
     "url-sharing"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ABfry/instant-room.git"
+  },
+  "homepage": "https://github.com/ABfry/instant-room",
+  "bugs": {
+    "url": "https://github.com/ABfry/instant-room/issues"
+  },
   "dependencies": {
     "lib0": "^0.2.117",
     "ms": "^2.1.3",
